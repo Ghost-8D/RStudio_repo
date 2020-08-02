@@ -4,6 +4,9 @@ print("...and now it lives on GitHub!")
 
 # Quiz 1 (questions 11-20):
 
+# Load data
+data <- read.csv("hw1_data.csv")
+
 # In the dataset provided for this Quiz, what are the column names of the dataset?
 names(data)
 
@@ -30,6 +33,8 @@ mean(ozone[!is.na(ozone)])
 
 # Extract the subset of rows of the data frame where Ozone values are above 31 
 # and Temp values are above 90. What is the mean of Solar.R in this subset?
+rem_na <- complete.cases(data)
+clean_data <- data[rem_na, ]
 mean(clean_data[clean_data[["Ozone"]] > 31 & clean_data[["Temp"]] > 90, "Solar.R"])
 
 # What is the mean of "Temp" when "Month" is equal to 6?
