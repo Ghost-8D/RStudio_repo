@@ -1,3 +1,41 @@
+## The function reads the outcome-of-care-measures.csv file and returns a character 
+## vector (the name of the hospital) that has the ranking specified by the num 
+## argument, based on the mortality value for the specified outcome in that state. 
+## 
+## The function takes two arguments: 
+## - state : the 2-character abbreviated name of a state
+## - outcome : outcome name (either "heart attack", "heart failure" or "pneumonia") 
+## - num : the ranking of a hospital (either "best", "worst", non-zero integer)
+## 
+## Note: The function throws an error if either state or outcome is not valid.
+## 
+## Handling ties: If there is a tie for the best hospital for a given outcome, 
+## then the hospital names should be sorted in alphabetical order and the first 
+## hospital in that set should be chosen (i.e. if hospitals “b”, “c”, and “f” 
+## are tied for best, then hospital “b” should be returned).
+##
+## Usage examples:
+## ==============
+## Example with best:
+## > rankhospital("TX", "heart failure", "best")
+## [1] "FORT DUNCAN MEDICAL CENTER"
+## 
+## Example with 1st index:
+## > rankhospital("TX", "heart failure", 1) 
+## [1] "FORT DUNCAN MEDICAL CENTER"
+## 
+## Example with worst
+## > rankhospital("TX", "heart failure", "worst")
+## [1] "ETMC CARTHAGE"
+## 
+## Example with negative index 
+## > rankhospital("TX", "heart failure", -1)
+## [1] "ETMC CARTHAGE"
+## 
+## Example with incorrect argument
+## > rankhospital("TX", "hart failure", 1)
+## Error in rankhospital("TX", "hart failure", 1) : invalid outcome
+## 
 rankhospital <- function(state, outcome, num = "best") {
     ## Read outcome data
     directory <- file.path("data", "rprog_data_ProgAssignment3-data")
@@ -53,7 +91,14 @@ rankhospital <- function(state, outcome, num = "best") {
     if (num == "worst"){
         return(sorted_data[nrow(sorted_data), 1])
     }
-    if (num > nrow(sorted_data)){
+    
+    ## If num is negative start counting from the bottom
+    if (num < 0){
+        num <- nrow(sorted_data) + 1 + num
+    }
+    
+    ## If the number is bigger than the number of rows or is zero return NA
+    if (abs(num) > nrow(sorted_data) || num == 0){
         return(NA)
     }
     sorted_data[num, 1]
