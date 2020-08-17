@@ -24,8 +24,10 @@ SCC <- readRDS(SCC_file)
 NEI <- as_tibble(NEI)
 SCC <- as_tibble(SCC)
 
-# Use SCC file to get the scc codes for sectors that are coal related
-use_scc <- subset(SCC, grepl("Coal", EI.Sector, fixed = TRUE))$SCC
+# Use SCC file to get the scc codes for sectors that are coal and comb related
+#use_scc <- subset(SCC, grepl("Coal", EI.Sector, ignore.case = TRUE))$SCC
+use_scc <- subset(SCC, grepl("Comb", SCC.Level.One, ignore.case = TRUE) & 
+                    grepl("Coal", SCC.Level.Four, ignore.case = TRUE))$SCC
 
 # Filter emissions data using the scc codes that are coal related
 coal_data <- subset(NEI, SCC %in% use_scc)
@@ -48,14 +50,15 @@ png(filename = "plot4.png", width = 480, height = 480)
 g <- ggplot(coal_data, aes(x=year, y=log10(Emissions), fill=year)) + 
   geom_violin(trim=FALSE)+
   geom_boxplot(width=0.1, fill="white")+
-  labs(title="Total PM2.5 Emissions from coal combustion-related sources",
-       x="Year", y = "PM2.5 Emissions in tons (in logarithmic scale)")
+  labs(title=expression("Total PM"[2.5]*" Emissions from coal combustion-related sources"),
+       x="Year", y=expression("PM"[2.5]*" Emissions in tons (in log scale)"))
 g + theme_classic()
 dev.off()
 
 # Cleanup
 rm(coal_data)
 rm(use_scc)
+rm(g)
 file.remove(NEI_file)
 file.remove(SCC_file)
 rm(NEI_file)

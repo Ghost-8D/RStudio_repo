@@ -27,39 +27,34 @@ SCC <- as_tibble(SCC)
 # Use SCC file to get the scc codes for motor vehicles sources
 use_scc <- subset(SCC, grepl("Vehicle", EI.Sector, fixed = TRUE))$SCC
 
-# Filter emissions using the scc codes from motor vehicles sources in Baltimore and Los Angeles
-bc_data <- subset(NEI, SCC %in% use_scc & (fips == "24510" | fips == "06037"))
-la_data <- subset(NEI, fips == "06037" & SCC %in% use_scc)
+# Filter emissions using the scc codes from motor vehicles sources in Baltimore
+motor_data <- subset(NEI, fips == "24510" & SCC %in% use_scc)
 
 # Clean some memory
 rm(NEI)
 rm(SCC)
 
 # Transform year and type into factors
-bc_data <- transform(bc_data, year = factor(year))
-la_data <- transform(la_data, year = factor(year))
+motor_data <- transform(motor_data, year = factor(year))
 
 # Convert to tibble 
-bc_data <- as_tibble(bc_data)
-la_data <- as_tibble(la_data)
-
-bc_data$Location <- sapply(bc_data$fips, FUN=function(x){
-  if (x=="24510"){"Baltimore City"}
-  else{"Los Angeles"}}) 
+motor_data <- as_tibble(motor_data)
 
 # Create plot and save to png file
-png(filename = "plot6.png", width = 480, height = 480)
-g <- ggplot(bc_data, aes(x=year, y=log10(Emissions), fill=year)) + 
+png(filename = "plot5.png", width = 480, height = 480)
+#qplot(year, log10(Emissions), data=motor_data, geom="boxplot", 
+#      ylab="PM2.5 Emissions in tons (in logarithmic scale)", xlab="Year", 
+#      main="PM2.5 Emissions from motor vehicle sources in Baltimore")
+g <- ggplot(motor_data, aes(x=year, y=log10(Emissions), fill=year)) + 
   geom_violin(trim=FALSE)+
   geom_boxplot(width=0.1, fill="white")+
-  labs(title="PM2.5 Emissions from motor vehicle sources",
-       x="Year", y = "PM2.5 Emissions in tons (in logarithmic scale)")
-g + scale_fill_brewer(palette="Blues") + theme_minimal() + facet_grid(.~Location)
+  labs(title=expression("PM"[2.5]*" Emissions from motor vehicle sources in Baltimore"),
+       x="Year", y=expression("PM"[2.5]*" Emissions in tons (in log scale)"))
+g + scale_fill_brewer(palette="Dark2") + theme_minimal()
 dev.off()
 
 # Cleanup
-rm(bc_data)
-rm(la_data)
+rm(motor_data)
 rm(use_scc)
 file.remove(NEI_file)
 file.remove(SCC_file)
